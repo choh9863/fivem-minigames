@@ -56,7 +56,7 @@ RegisterNetEvent('minigames:client:playerLeft', function(playerId)
 end)
 
 -- 채팅 메시지 전송
-RegisterNetEvent('minigames:server:sendChatMessage', function(message)
+RegisterNetEvent('minigames:server:chatMessage', function(message)
     local src = source
     local player = GetPlayer(src)
 

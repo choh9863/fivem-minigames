@@ -20,6 +20,9 @@ function OpenLobby(data)
     isLobbyOpen = true
     SetNuiFocus(true, true)
 
+    -- data가 nil이면 빈 테이블로 초기화
+    data = data or {}
+
     -- 게임모드 데이터 준비
     local gamemodes = {}
     for _, mode in ipairs(Config.Gamemodes) do
@@ -150,6 +153,11 @@ end)
 -- ========================================
 -- 서버 이벤트 (서버 -> 클라이언트)
 -- ========================================
+
+-- 로비 데이터 수신 및 열기
+RegisterNetEvent('minigames:client:receiveLobbyData', function(data)
+    OpenLobby(data)
+end)
 
 -- 로비 열기
 RegisterNetEvent('minigames:client:openLobby', function(data)

@@ -180,7 +180,7 @@ function CreateWeaponProp(weapon)
     SetModelAsNoLongerNeeded(weaponModel)
 
     Utils.Debug('Weapon prop created and attached')
-end)
+end
 
 -- ========================================
 -- 무기 프롭 제거

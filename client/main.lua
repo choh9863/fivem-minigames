@@ -65,7 +65,8 @@ function SpawnInLobby()
 
     -- 로비 UI 열기
     Wait(500)
-    TriggerEvent('minigames:client:openLobby')
+    -- 서버에 로비 데이터 요청
+    TriggerServerEvent('minigames:server:requestLobbyData')
 
     Utils.Info('Spawned in lobby')
 end
