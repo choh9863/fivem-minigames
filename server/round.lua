@@ -133,6 +133,7 @@ function StartGamemodeVoting()
 
     Utils.Info('Gamemode voting started (30s)')
     TriggerClientEvent('minigames:client:startGamemodeVoting', -1, Config.Gamemodes, 30)
+    TriggerClientEvent('minigames:client:updateRoundState', -1, 'voting_gamemode', 30)
 end
 
 -- 게임모드 투표 종료 후 맵 투표 시작
@@ -153,6 +154,7 @@ function EndGamemodeVoting()
 
     Utils.Info('Map voting started for ' .. selectedGamemode.name .. ' (20s)')
     TriggerClientEvent('minigames:client:startMapVoting', -1, maps, 20)
+    TriggerClientEvent('minigames:client:updateRoundState', -1, 'voting_map', 20)
 end
 
 -- 맵 투표 종료 후 게임 시작 대기

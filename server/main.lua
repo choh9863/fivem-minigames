@@ -221,19 +221,35 @@ function HandleWaitingState()
     local activeCount = GetActivePlayersCount()
     local readyCount = GetReadyPlayersCount()
 
+    -- 투표가 진행 중이면 대기 상태 타이머 무시
+    if CurrentVoting and CurrentVoting.state ~= VotingState.IDLE then
+        return
+    end
+
     -- 최소 플레이어 수 체크
     if activeCount < Config.MinPlayers then
-        CurrentRound.timer = Config.Round.WaitingTime
+        CurrentRound.timer = 0
+        -- 상태 브로드캐스트 (플레이어 기다리는 중)
+        TriggerClientEvent('minigames:client:updateRoundState', -1, 'waiting_players', Config.MinPlayers - activeCount)
         return
     end
 
     -- 과반수 준비 체크
     if readyCount >= math.ceil(activeCount * Config.RequiredReadyPercentage) then
         if CurrentRound.timer <= 0 then
-            StartRound()
+            CurrentRound.timer = 10 -- 10초 카운트다운
+        end
+        -- 상태 브로드캐스트 (게임 시작까지 남은 시간)
+        TriggerClientEvent('minigames:client:updateRoundState', -1, 'starting', CurrentRound.timer)
+
+        if CurrentRound.timer <= 0 then
+            -- 투표 시작
+            StartGamemodeVoting()
         end
     else
-        CurrentRound.timer = Config.Round.WaitingTime
+        CurrentRound.timer = 0
+        -- 상태 브로드캐스트 (준비된 플레이어 기다리는 중)
+        TriggerClientEvent('minigames:client:updateRoundState', -1, 'waiting_ready', {ready = readyCount, required = math.ceil(activeCount * Config.RequiredReadyPercentage)})
     end
 end
 
@@ -270,26 +286,25 @@ function HandleEndingState()
     end
 end
 
--- 라운드 시작
+-- 라운드 시작 (투표 완료 후 호출됨)
 function StartRound()
-    -- 투표 결과로 게임모드와 맵 선택
-    local selectedGamemode = GetMostVotedGamemode()
-    local selectedMap = GetMostVotedMap(selectedGamemode)
-
-    if not selectedGamemode or not selectedMap then
+    -- 투표 시스템이 이미 게임모드와 맵을 선택함
+    if not CurrentRound.gamemode or not CurrentRound.map then
         Utils.Error('Failed to start round: Invalid gamemode or map')
         return
     end
 
-    CurrentRound.gamemode = selectedGamemode
-    CurrentRound.map = selectedMap
     CurrentRound.state = GameModes.States.PREPARE
     CurrentRound.timer = Config.Round.PrepareTime
 
     -- 모든 플레이어에게 라운드 시작 알림
-    TriggerClientEvent('minigames:client:roundPrepare', -1, selectedGamemode, selectedMap)
+    TriggerClientEvent('minigames:client:roundPrepare', -1, CurrentRound.gamemode, CurrentRound.map)
+    TriggerClientEvent('minigames:client:updateRoundState', -1, 'preparing', CurrentRound.timer)
 
-    Utils.Info('Round starting: ' .. selectedGamemode.name .. ' - ' .. selectedMap.name)
+    -- 라운드 준비 함수 호출
+    OnRoundPrepare()
+
+    Utils.Info('Round starting: ' .. CurrentRound.gamemode.name .. ' - ' .. CurrentRound.map.name)
 end
 
 -- 라운드 종료

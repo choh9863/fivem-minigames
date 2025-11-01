@@ -78,6 +78,10 @@ window.addEventListener('message', (event) => {
             updateTimer(data.time);
             break;
 
+        case 'updateRoundState':
+            updateRoundState(data.state, data.data);
+            break;
+
         case 'chatMessage':
             addChatMessage(data.sender, data.message);
             break;
@@ -98,6 +102,11 @@ document.addEventListener('keydown', (e) => {
 // 버튼 이벤트
 // ========================================
 elements.btnReady.addEventListener('click', () => {
+    // 관전 중이면 준비 버튼 무시
+    if (lobbyData.isSpectating) {
+        return;
+    }
+
     lobbyData.isReady = !lobbyData.isReady;
     updateReadyButton();
     sendNUIMessage('toggleReady');
@@ -128,6 +137,12 @@ elements.chatInput.addEventListener('keypress', (e) => {
 // ========================================
 function openLobby(data) {
     lobbyData = { ...lobbyData, ...data };
+
+    // maxPlayers 기본값 설정
+    if (!lobbyData.maxPlayers) {
+        lobbyData.maxPlayers = 32;
+    }
+
     elements.container.classList.remove('hidden');
 
     // 초기 데이터 렌더링
@@ -419,6 +434,79 @@ function updateTimer(time) {
 }
 
 // ========================================
+// 라운드 상태 업데이트
+// ========================================
+function updateRoundState(state, data) {
+    elements.timerSection.style.display = 'block';
+
+    switch (state) {
+        case 'waiting_players':
+            // 플레이어를 기다리는 중 (X명 더 필요)
+            if (elements.timerLabel) {
+                elements.timerLabel.textContent = '상태';
+            }
+            elements.timerValue.textContent = `${data}명 더 필요`;
+            break;
+
+        case 'waiting_ready':
+            // 준비된 플레이어를 기다리는 중 (X/Y 준비됨)
+            if (elements.timerLabel) {
+                elements.timerLabel.textContent = '상태';
+            }
+            elements.timerValue.textContent = `준비: ${data.ready}/${data.required}`;
+            break;
+
+        case 'starting':
+            // 게임 시작까지 남은 시간
+            if (elements.timerLabel) {
+                elements.timerLabel.textContent = '게임 시작까지';
+            }
+            if (data > 0) {
+                elements.timerValue.textContent = `${data}초`;
+            } else {
+                elements.timerValue.textContent = '곧 시작...';
+            }
+            break;
+
+        case 'voting_gamemode':
+            // 게임모드 투표 중
+            if (elements.timerLabel) {
+                elements.timerLabel.textContent = '상태';
+            }
+            elements.timerValue.textContent = '게임모드 투표 중';
+            break;
+
+        case 'voting_map':
+            // 맵 투표 중
+            if (elements.timerLabel) {
+                elements.timerLabel.textContent = '상태';
+            }
+            elements.timerValue.textContent = '맵 투표 중';
+            break;
+
+        case 'preparing':
+            // 라운드 준비 중
+            if (elements.timerLabel) {
+                elements.timerLabel.textContent = '상태';
+            }
+            if (data > 0) {
+                elements.timerValue.textContent = `준비 중... ${data}초`;
+            } else {
+                elements.timerValue.textContent = '곧 시작...';
+            }
+            break;
+
+        default:
+            if (elements.timerLabel) {
+                elements.timerLabel.textContent = '상태';
+            }
+            elements.timerValue.textContent = '대기 중';
+    }
+
+    console.log('[Lobby] Round state updated:', state, data);
+}
+
+// ========================================
 // 버튼 상태 업데이트
 // ========================================
 function updateReadyButton() {
@@ -426,6 +514,17 @@ function updateReadyButton() {
         elements.btnReady.classList.add('active');
     } else {
         elements.btnReady.classList.remove('active');
+    }
+
+    // 관전 중일 때 준비 버튼 비활성화
+    if (lobbyData.isSpectating) {
+        elements.btnReady.disabled = true;
+        elements.btnReady.style.opacity = '0.5';
+        elements.btnReady.style.cursor = 'not-allowed';
+    } else {
+        elements.btnReady.disabled = false;
+        elements.btnReady.style.opacity = '1';
+        elements.btnReady.style.cursor = 'pointer';
     }
 }
 

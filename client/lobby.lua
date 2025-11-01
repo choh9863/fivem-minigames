@@ -252,6 +252,17 @@ RegisterNetEvent('minigames:client:votingComplete', function(gamemode, map)
     })
 end)
 
+-- 라운드 상태 업데이트
+RegisterNetEvent('minigames:client:updateRoundState', function(state, data)
+    if not isLobbyOpen then return end
+
+    SendNUIMessage({
+        action = 'updateRoundState',
+        state = state,
+        data = data
+    })
+end)
+
 -- ========================================
 -- 테스트 명령어 (개발용)
 -- ========================================

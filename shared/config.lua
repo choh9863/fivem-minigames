@@ -3,7 +3,7 @@ Config = {}
 -- ========================================
 -- GENERAL SETTINGS
 -- ========================================
-Config.MinPlayers = 2 -- 게임 시작을 위한 최소 플레이어 수
+Config.MinPlayers = 1 -- 게임 시작을 위한 최소 플레이어 수
 Config.MaxPlayers = 32 -- 최대 플레이어 수
 Config.RequiredReadyPercentage = 0.5 -- 과반수 (50%)
 
