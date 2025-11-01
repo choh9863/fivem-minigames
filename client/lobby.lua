@@ -39,6 +39,7 @@ function OpenLobby(data)
     SendNUIMessage({
         action = 'openLobby',
         data = {
+            mySource = GetPlayerServerId(PlayerId()),
             players = data.players or {},
             spectators = data.spectators or {},
             gamemodes = gamemodes,
@@ -199,6 +200,7 @@ RegisterNetEvent('minigames:client:updatePlayerList', function(playerList, spect
     SendNUIMessage({
         action = 'updateLobbyData',
         data = {
+            mySource = GetPlayerServerId(PlayerId()),
             players = playerList,
             spectators = spectatorList
         }

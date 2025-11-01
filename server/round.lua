@@ -175,6 +175,10 @@ function EndMapVoting()
 
     Utils.Info('Voting complete: ' .. (CurrentRound.gamemode and CurrentRound.gamemode.name or 'none') .. ' - ' .. (CurrentRound.map and CurrentRound.map.name or 'none'))
     TriggerClientEvent('minigames:client:votingComplete', -1, CurrentVoting.selectedGamemode, selectedMap)
+
+    -- 투표 완료 후 라운드 시작
+    Wait(3000) -- 3초 대기 (결과 확인 시간)
+    StartRound()
 end
 
 -- 가장 많은 표를 받은 게임모드 반환

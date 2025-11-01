@@ -2,6 +2,7 @@
 // 전역 변수
 // ========================================
 let lobbyData = {
+    mySource: null,
     players: [],
     spectators: [],
     gamemodes: [],
@@ -153,6 +154,31 @@ function closeLobby() {
 
 function updateLobbyData(data) {
     lobbyData = { ...lobbyData, ...data };
+
+    // 내 플레이어 상태 동기화
+    if (lobbyData.mySource && (data.players || data.spectators)) {
+        // 플레이어 리스트에서 내 상태 찾기
+        if (data.players) {
+            const myPlayer = data.players.find(p => p.source === lobbyData.mySource);
+            if (myPlayer) {
+                lobbyData.isReady = myPlayer.ready;
+                lobbyData.isSpectating = false;
+                updateReadyButton();
+                updateSpectateButton();
+            }
+        }
+
+        // 관전자 리스트에서 내 상태 찾기
+        if (data.spectators) {
+            const mySpectator = data.spectators.find(s => s.source === lobbyData.mySource);
+            if (mySpectator) {
+                lobbyData.isReady = false;
+                lobbyData.isSpectating = true;
+                updateReadyButton();
+                updateSpectateButton();
+            }
+        }
+    }
 
     // UI 업데이트
     updatePlayerList();
