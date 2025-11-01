@@ -48,6 +48,7 @@ ui_page 'html/index.html'
 files {
     'html/index.html',
     'html/hud.html',
+    'html/voting.html',
     'html/css/*.css',
     'html/js/*.js',
     'html/img/**/*.*'

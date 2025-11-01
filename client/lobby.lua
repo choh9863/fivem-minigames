@@ -135,15 +135,15 @@ RegisterNUICallback('quitGame', function(data, cb)
     cb('ok')
 end)
 
--- 게임모드 투표
+-- 게임모드 투표 (기존 로비 UI용 - 제거 예정)
 RegisterNUICallback('voteGamemode', function(data, cb)
-    TriggerServerEvent('minigames:server:voteGamemode', data.gamemodeId)
+    TriggerServerEvent('minigames:server:voteGamemode', data.gamemodeId or data.id)
     cb('ok')
 end)
 
--- 맵 투표
+-- 맵 투표 (기존 로비 UI용 - 제거 예정)
 RegisterNUICallback('voteMap', function(data, cb)
-    TriggerServerEvent('minigames:server:voteMap', data.mapId)
+    TriggerServerEvent('minigames:server:voteMap', data.mapId or data.id)
     cb('ok')
 end)
 
@@ -205,38 +205,48 @@ RegisterNetEvent('minigames:client:updatePlayerList', function(playerList, spect
     })
 end)
 
--- 투표 업데이트
-RegisterNetEvent('minigames:client:updateVotes', function(votes)
-    if not isLobbyOpen then return end
+-- ========================================
+-- 투표 시스템 (새 팝업 UI)
+-- ========================================
 
-    -- 투표 수를 게임모드와 맵에 반영
-    local gamemodes = {}
-    for _, mode in ipairs(Config.Gamemodes) do
-        local voteCount = 0
-        if votes.gamemode[mode.id] then
-            voteCount = #votes.gamemode[mode.id]
-        end
-
-        table.insert(gamemodes, {
-            id = mode.id,
-            name = mode.name,
-            description = mode.description,
-            image = mode.image,
-            votes = voteCount
-        })
-    end
-
-    -- 현재 선택된 게임모드의 맵 가져오기
-    local maps = {}
-    -- TODO: 선택된 게임모드에 따른 맵 필터링
-
+-- 게임모드 투표 시작
+RegisterNetEvent('minigames:client:startGamemodeVoting', function(gamemodes, timer)
     SendNUIMessage({
-        action = 'updateLobbyData',
-        data = {
-            gamemodes = gamemodes,
-            maps = maps,
-            votes = votes
-        }
+        action = 'startGamemodeVoting',
+        gamemodes = gamemodes,
+        timer = timer
+    })
+end)
+
+-- 맵 투표 시작
+RegisterNetEvent('minigames:client:startMapVoting', function(maps, timer)
+    SendNUIMessage({
+        action = 'startMapVoting',
+        maps = maps,
+        timer = timer
+    })
+end)
+
+-- 투표 타이머 업데이트
+RegisterNetEvent('minigames:client:updateVotingTimer', function(timer)
+    SendNUIMessage({
+        action = 'updateVotingTimer',
+        timer = timer
+    })
+end)
+
+-- 투표 수 업데이트
+RegisterNetEvent('minigames:client:updateVoteCounts', function(votes)
+    SendNUIMessage({
+        action = 'updateVoteCounts',
+        votes = votes
+    })
+end)
+
+-- 투표 완료
+RegisterNetEvent('minigames:client:votingComplete', function(gamemode, map)
+    SendNUIMessage({
+        action = 'votingComplete'
     })
 end)
 

@@ -43,11 +43,14 @@ RegisterNetEvent('minigames:server:toggleSpectate', function()
         return
     end
 
-    -- 관전 상태 토글
+    -- 관전 토글
     player.spectating = not player.spectating
 
-    -- 관전 시작 시 준비 해제
+    -- 관전 참여 시: 준비 상태 자동 해제
     if player.spectating then
+        player.ready = false
+    -- 관전 해제 시: 준비 상태 리셋 (false)
+    else
         player.ready = false
     end
 

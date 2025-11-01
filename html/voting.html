@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting System</title>
+    <link rel="stylesheet" href="css/voting.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="voting-overlay" class="voting-overlay hidden">
+        <div class="voting-container">
+            <div class="voting-header">
+                <h2 id="voting-title">게임모드 투표</h2>
+                <div class="voting-timer">
+                    <span id="voting-time">30</span>초
+                </div>
+            </div>
+
+            <div id="voting-grid" class="voting-grid">
+                <!-- 투표 카드들이 동적으로 추가됨 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/voting.js"></script>
+</body>
+</html>
