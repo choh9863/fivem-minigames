@@ -151,12 +151,16 @@ function StartRendering()
                             false, true, 2, false, nil, nil, false
                         )
 
-                        -- 3D 텍스트
+                        -- 3D 텍스트 (NUI 사용)
                         local playerCoords = GetEntityCoords(PlayerPedId())
                         local distance = #(playerCoords - bossCoords)
 
                         if distance < 50.0 and not Boss.isBoss then
-                            DrawText3D(bossCoords.x, bossCoords.y, bossCoords.z + 2.5, "[ 보스 ]")
+                            ShowText3D(
+                                vector3(bossCoords.x, bossCoords.y, bossCoords.z + 2.5),
+                                "[ 보스 ]",
+                                { id = 'boss-marker', style = 'boss-marker' }
+                            )
                         end
                     end
                 end
@@ -177,25 +181,6 @@ function StartRendering()
     end)
 end
 
--- 3D 텍스트 그리기
-function DrawText3D(x, y, z, text)
-    local onScreen, _x, _y = World3dToScreen2d(x, y, z)
-
-    if onScreen then
-        SetTextScale(0.4, 0.4)
-        SetTextFont(4)
-        SetTextProportional(1)
-        SetTextColour(255, 0, 0, 255)
-        SetTextEntry("STRING")
-        SetTextCentre(1)
-        AddTextComponentString(text)
-        DrawText(_x, _y)
-
-        local factor = (string.len(text)) / 370
-        DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 0, 0, 0, 100)
-    end
-end
-
 -- 보스 HUD 업데이트
 function UpdateBossHUD()
     SendNUIMessage({
@@ -205,35 +190,23 @@ function UpdateBossHUD()
     })
 end
 
--- 보스 정보 표시
+-- 보스 HUD 업데이트 루프
 CreateThread(function()
     while true do
-        Wait(0)
+        Wait(100)
 
         if CurrentRound.state == GameModes.States.PLAYING and CurrentRound.gamemode and
            CurrentRound.gamemode.id == "boss" then
 
-            -- 화면 상단에 보스 정보 표시
-            SetTextFont(4)
-            SetTextProportional(1)
-            SetTextScale(0.5, 0.5)
-            SetTextColour(255, 255, 255, 255)
-            SetTextDropshadow(0, 0, 0, 0, 255)
-            SetTextEdge(2, 0, 0, 0, 150)
-            SetTextDropShadow()
-            SetTextOutline()
-            SetTextEntry("STRING")
+            local vehicle = LocalPlayer.vehicle
 
-            local infoText = Boss.isBoss and "역할: 보스 - 모든 플레이어 제거!" or "보스: " .. Boss.bossName .. " - 생존하세요!"
-
-            if Boss.isBoss then
-                SetTextColour(255, 50, 50, 255)
-            else
-                SetTextColour(50, 255, 50, 255)
-            end
-
-            AddTextComponentString(infoText)
-            DrawText(0.5, 0.08)
+            SendNUIMessage({
+                action = 'updateBossHUD',
+                isBoss = Boss.isBoss,
+                bossName = Boss.bossName,
+                vehicleHealth = vehicle and DoesEntityExist(vehicle) and (GetVehicleEngineHealth(vehicle) / 10) or 0,
+                vehicleSpeed = vehicle and DoesEntityExist(vehicle) and math.floor(GetEntitySpeed(vehicle) * 3.6) or 0
+            })
         else
             Wait(500)
         end

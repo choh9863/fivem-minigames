@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game HUD</title>
+    <link rel="stylesheet" href="css/hud.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 3D 텍스트 컨테이너 -->
+    <div id="text-3d-container">
+        <!-- 3D 좌표를 2D로 변환한 텍스트들이 여기에 추가됩니다 -->
+    </div>
+
+    <!-- 조준점 (범퍼카, 무기 모드) -->
+    <div id="crosshair" class="hidden">
+        <div class="crosshair-line crosshair-horizontal"></div>
+        <div class="crosshair-line crosshair-vertical"></div>
+        <div class="crosshair-dot"></div>
+    </div>
+
+    <!-- 범퍼카 모드 HUD -->
+    <div id="bumpercar-hud" class="hud-container hidden">
+        <!-- 좌측 하단: 차량 정보 -->
+        <div class="vehicle-info">
+            <div class="info-row">
+                <span class="info-label">체력</span>
+                <div class="health-bar-container">
+                    <div class="health-bar" id="bumpercar-health-bar"></div>
+                    <span class="health-text" id="bumpercar-health-text">100%</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">속도</span>
+                <span class="info-value" id="bumpercar-speed">0 km/h</span>
+            </div>
+        </div>
+
+        <!-- 하단 중앙: 아이템 슬롯 -->
+        <div class="item-slots">
+            <div class="item-slot" data-slot="1">
+                <div class="slot-number">1</div>
+                <div class="slot-content" id="item-slot-1">
+                    <div class="slot-empty">비어있음</div>
+                </div>
+            </div>
+            <div class="item-slot" data-slot="2">
+                <div class="slot-number">2</div>
+                <div class="slot-content" id="item-slot-2">
+                    <div class="slot-empty">비어있음</div>
+                </div>
+            </div>
+            <div class="item-slot" data-slot="3">
+                <div class="slot-number">3</div>
+                <div class="slot-content" id="item-slot-3">
+                    <div class="slot-empty">비어있음</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 폭탄 모드 HUD -->
+    <div id="bomb-hud" class="hud-container hidden">
+        <!-- 상단 중앙: 폭탄 타이머 -->
+        <div class="bomb-timer">
+            <div class="bomb-icon">💣</div>
+            <div class="timer-display" id="bomb-timer-display">00:00</div>
+        </div>
+
+        <!-- 좌측 하단: 차량 정보 -->
+        <div class="vehicle-info">
+            <div class="info-row">
+                <span class="info-label">체력</span>
+                <div class="health-bar-container">
+                    <div class="health-bar" id="bomb-health-bar"></div>
+                    <span class="health-text" id="bomb-health-text">100%</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">속도</span>
+                <span class="info-value" id="bomb-speed">0 km/h</span>
+            </div>
+        </div>
+
+        <!-- 우측 상단: 폭탄 소유자 정보 -->
+        <div class="bomb-holder-info">
+            <div class="holder-label">폭탄 소유자</div>
+            <div class="holder-name" id="bomb-holder-name">-</div>
+        </div>
+    </div>
+
+    <!-- 아발란체 모드 HUD -->
+    <div id="avalanche-hud" class="hud-container hidden">
+        <!-- 좌측 하단: 차량 정보 -->
+        <div class="vehicle-info">
+            <div class="info-row">
+                <span class="info-label">체력</span>
+                <div class="health-bar-container">
+                    <div class="health-bar" id="avalanche-health-bar"></div>
+                    <span class="health-text" id="avalanche-health-text">100%</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">속도</span>
+                <span class="info-value" id="avalanche-speed">0 km/h</span>
+            </div>
+        </div>
+
+        <!-- 상단 중앙: 골인 지점까지 거리 -->
+        <div class="distance-info">
+            <div class="distance-label">골인 지점</div>
+            <div class="distance-value" id="avalanche-distance">0 m</div>
+        </div>
+
+        <!-- 우측 상단: 경고 메시지 -->
+        <div class="warning-message hidden" id="avalanche-warning">
+            <div class="warning-icon">⚠</div>
+            <div class="warning-text">낙하 차량 접근 중!</div>
+        </div>
+    </div>
+
+    <!-- 보스 모드 HUD -->
+    <div id="boss-hud" class="hud-container hidden">
+        <!-- 상단 중앙: 보스 정보 -->
+        <div class="boss-info">
+            <div class="boss-label" id="boss-role-label">보스</div>
+            <div class="boss-name" id="boss-name">-</div>
+        </div>
+
+        <!-- 좌측 하단: 차량 정보 -->
+        <div class="vehicle-info">
+            <div class="info-row">
+                <span class="info-label">체력</span>
+                <div class="health-bar-container">
+                    <div class="health-bar" id="boss-health-bar"></div>
+                    <span class="health-text" id="boss-health-text">100%</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">속도</span>
+                <span class="info-value" id="boss-speed">0 km/h</span>
+            </div>
+        </div>
+
+        <!-- 우측 상단: 역할 표시 -->
+        <div class="role-display">
+            <div class="role-text" id="boss-role-text">생존자</div>
+        </div>
+    </div>
+
+    <!-- 무기 모드 HUD -->
+    <div id="weapon-hud" class="hud-container hidden">
+        <!-- 우측 하단: 무기 정보 -->
+        <div class="weapon-info">
+            <div class="weapon-header">
+                <div class="weapon-icon" id="weapon-icon">
+                    <!-- 무기 아이콘 이미지 -->
+                </div>
+                <div class="weapon-name" id="weapon-name">무기 없음</div>
+            </div>
+            <div class="weapon-ammo">
+                <span class="ammo-current" id="weapon-ammo-current">0</span>
+                <span class="ammo-separator">/</span>
+                <span class="ammo-max" id="weapon-ammo-max">0</span>
+            </div>
+            <div class="reload-bar-container hidden" id="reload-bar-container">
+                <div class="reload-bar" id="reload-bar"></div>
+                <span class="reload-text">재장전 중...</span>
+            </div>
+        </div>
+
+        <!-- 좌측 하단: 차량 정보 -->
+        <div class="vehicle-info">
+            <div class="info-row">
+                <span class="info-label">체력</span>
+                <div class="health-bar-container">
+                    <div class="health-bar" id="weapon-health-bar"></div>
+                    <span class="health-text" id="weapon-health-text">100%</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">속도</span>
+                <span class="info-value" id="weapon-speed">0 km/h</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알림 컨테이너 -->
+    <div id="notification-container"></div>
+
+    <!-- 킬피드 -->
+    <div id="killfeed-container"></div>
+
+    <script src="js/hud.js"></script>
+</body>
+</html>

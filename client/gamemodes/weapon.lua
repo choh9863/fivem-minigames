@@ -337,7 +337,7 @@ function StartTargeting()
                             coords = hitCoords
                         }
 
-                        -- 조준점 그리기
+                        -- 타겟 마커 그리기
                         DrawTargetMarker(entityHit)
                     else
                         Weapon.currentTarget = nil
@@ -345,9 +345,6 @@ function StartTargeting()
                 else
                     Weapon.currentTarget = nil
                 end
-
-                -- 조준선 그리기
-                DrawCrosshair()
             else
                 Wait(500)
             end
@@ -374,18 +371,6 @@ function DrawTargetMarker(entity)
         255, 0, 0, 150,
         true, true, 2, false, nil, nil, false
     )
-end
-
--- ========================================
--- 조준선 그리기
--- ========================================
-function DrawCrosshair()
-    local screenX, screenY = 0.5, 0.5
-
-    -- 십자 조준선
-    local color = Weapon.currentTarget and {255, 0, 0, 255} or {255, 255, 255, 255}
-    DrawRect(screenX, screenY, 0.002, 0.02, color[1], color[2], color[3], color[4])
-    DrawRect(screenX, screenY, 0.02, 0.002, color[1], color[2], color[3], color[4])
 end
 
 -- ========================================
@@ -821,10 +806,13 @@ function StartRendering()
                         true, true, 2, true, nil, nil, false
                     )
 
-                    -- 3D 텍스트
+                    -- 3D 텍스트 (NUI 사용)
                     if distance < 50.0 then
-                        DrawText3D(weaponData.coords.x, weaponData.coords.y, weaponData.coords.z + 2.0,
-                            weaponData.weapon.name)
+                        ShowText3D(
+                            vector3(weaponData.coords.x, weaponData.coords.y, weaponData.coords.z + 2.0),
+                            weaponData.weapon.name,
+                            { id = 'weapon-pickup-' .. weaponId, style = 'weapon-pickup' }
+                        )
                     end
                 end
             end
@@ -837,87 +825,41 @@ function StartRendering()
 end
 
 -- ========================================
--- 3D 텍스트 그리기
--- ========================================
-function DrawText3D(x, y, z, text)
-    local onScreen, _x, _y = World3dToScreen2d(x, y, z)
-
-    if onScreen then
-        SetTextScale(0.4, 0.4)
-        SetTextFont(4)
-        SetTextProportional(1)
-        SetTextColour(255, 200, 0, 255)
-        SetTextEntry("STRING")
-        SetTextCentre(1)
-        SetTextOutline()
-        AddTextComponentString(text)
-        DrawText(_x, _y)
-    end
-end
-
--- ========================================
--- HUD 표시
+-- HUD 업데이트
 -- ========================================
 CreateThread(function()
     while true do
-        Wait(0)
+        Wait(100)
 
         if CurrentRound.state == GameModes.States.PLAYING and
            CurrentRound.gamemode and CurrentRound.gamemode.id == "weapon" and
            Weapon.currentWeapon then
 
-            -- 무기 정보 표시
-            SetTextFont(4)
-            SetTextProportional(1)
-            SetTextScale(0.45, 0.45)
-            SetTextColour(255, 255, 255, 255)
-            SetTextDropshadow(0, 0, 0, 0, 255)
-            SetTextEdge(2, 0, 0, 0, 150)
-            SetTextDropShadow()
-            SetTextOutline()
-            SetTextEntry("STRING")
+            local vehicle = LocalPlayer.vehicle
 
-            -- 무기 이름
-            local weaponText = "무기: " .. Weapon.currentWeapon.name
-            AddTextComponentString(weaponText)
-            DrawText(0.82, 0.90)
-
-            -- 탄약
-            SetTextEntry("STRING")
-            local ammoText
-            if Weapon.isReloading then
-                -- 재장전 진행률 계산
-                local elapsed = GetGameTimer() - Weapon.reloadStartTime
-                local progress = math.min(elapsed / Weapon.reloadDuration, 1.0)
-                local percentage = math.floor(progress * 100)
-                ammoText = "재장전 중... " .. percentage .. "%"
-                SetTextColour(255, 200, 0, 255)
-            else
-                ammoText = "탄약: " .. Weapon.currentAmmo .. " / " .. Weapon.currentWeapon.maxAmmo
-
-                -- 탄약 부족 시 빨간색
-                if Weapon.currentAmmo == 0 then
-                    SetTextColour(255, 0, 0, 255)
-                elseif Weapon.currentAmmo < Weapon.currentWeapon.maxAmmo * 0.3 then
-                    SetTextColour(255, 150, 0, 255)
-                else
-                    SetTextColour(255, 255, 255, 255)
-                end
-            end
-
-            AddTextComponentString(ammoText)
-            DrawText(0.82, 0.93)
-
-            -- 재장전 진행 바
+            -- 재장전 진행률 계산
+            local reloadProgress = 0
             if Weapon.isReloading then
                 local elapsed = GetGameTimer() - Weapon.reloadStartTime
-                local progress = math.min(elapsed / Weapon.reloadDuration, 1.0)
-
-                -- 배경
-                DrawRect(0.88, 0.96, 0.12, 0.02, 0, 0, 0, 150)
-                -- 진행 바
-                DrawRect(0.82 + (0.06 * progress), 0.96, 0.12 * progress, 0.02, 255, 200, 0, 255)
+                reloadProgress = math.min(elapsed / Weapon.reloadDuration, 1.0)
             end
+
+            -- 무기 HUD 업데이트
+            SendNUIMessage({
+                action = 'updateWeaponHud',
+                weapon = {
+                    name = Weapon.currentWeapon.name,
+                    icon = Weapon.currentWeapon.icon or nil,
+                    ammo = Weapon.currentAmmo,
+                    maxAmmo = Weapon.currentWeapon.maxAmmo,
+                    reloadProgress = reloadProgress
+                },
+                vehicleHealth = vehicle and DoesEntityExist(vehicle) and (GetVehicleEngineHealth(vehicle) / 10) or 0,
+                vehicleSpeed = vehicle and DoesEntityExist(vehicle) and math.floor(GetEntitySpeed(vehicle) * 3.6) or 0
+            })
+
+            -- 조준점 표시
+            ShowCrosshair(Weapon.currentTarget ~= nil)
         else
             Wait(500)
         end

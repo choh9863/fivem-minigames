@@ -166,6 +166,67 @@ CreateThread(function()
     end
 end)
 
+-- 3D 텍스트 시스템
+local Text3DData = {
+    texts = {},
+    counter = 0,
+    updateInterval = 100 -- 100ms마다 업데이트
+}
+
+-- 3D 텍스트 표시 (NUI 사용)
+function ShowText3D(coords, text, options)
+    options = options or {}
+
+    local onScreen, _x, _y = GetScreenCoordFromWorldCoord(coords.x, coords.y, coords.z)
+
+    if onScreen then
+        -- NUI에 텍스트 표시 요청
+        SendNUIMessage({
+            action = 'show3DText',
+            x = _x,
+            y = _y,
+            text = text,
+            id = options.id,
+            style = options.style or '',
+            color = options.color
+        })
+
+        return true
+    end
+
+    return false
+end
+
+-- 3D 텍스트 숨기기
+function HideText3D(id)
+    SendNUIMessage({
+        action = 'hide3DText',
+        id = id
+    })
+end
+
+-- 모든 3D 텍스트 제거
+function ClearAllText3D()
+    SendNUIMessage({
+        action = 'clear3DTexts'
+    })
+end
+
+-- 조준점 표시
+function ShowCrosshair(targeting)
+    SendNUIMessage({
+        action = 'showCrosshair',
+        targeting = targeting or false
+    })
+end
+
+-- 조준점 숨기기
+function HideCrosshair()
+    SendNUIMessage({
+        action = 'hideCrosshair'
+    })
+end
+
 -- 네이티브 HUD 비활성화
 CreateThread(function()
     while true do

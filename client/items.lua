@@ -184,8 +184,12 @@ CreateThread(function()
 
                 -- 아이템 렌더링
                 if distance < 100.0 then
-                    -- 3D 텍스트 그리기
-                    DrawText3D(itemData.coords.x, itemData.coords.y, itemData.coords.z + 1.0, itemData.name)
+                    -- 3D 텍스트 그리기 (NUI 사용)
+                    ShowText3D(
+                        vector3(itemData.coords.x, itemData.coords.y, itemData.coords.z + 1.0),
+                        itemData.name,
+                        { id = 'item-' .. itemId, style = 'item-pickup' }
+                    )
 
                     -- 마커 그리기
                     DrawMarker(
@@ -209,25 +213,6 @@ CreateThread(function()
         end
     end
 end)
-
--- 3D 텍스트 그리기
-function DrawText3D(x, y, z, text)
-    local onScreen, _x, _y = World3dToScreen2d(x, y, z)
-
-    if onScreen then
-        SetTextScale(0.35, 0.35)
-        SetTextFont(4)
-        SetTextProportional(1)
-        SetTextColour(255, 255, 255, 215)
-        SetTextEntry("STRING")
-        SetTextCentre(1)
-        AddTextComponentString(text)
-        DrawText(_x, _y)
-
-        local factor = (string.len(text)) / 370
-        DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 0, 0, 0, 75)
-    end
-end
 
 -- 아이템 목록 업데이트
 RegisterNetEvent('minigames:client:updateNearbyItems', function(items)

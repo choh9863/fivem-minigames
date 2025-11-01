@@ -258,33 +258,25 @@ function UpdateBombHUD()
     })
 end
 
--- 폭탄 타이머 렌더링
+-- 폭탄 타이머 HUD 업데이트 루프
 CreateThread(function()
     while true do
-        Wait(0)
+        Wait(100)
 
         if CurrentRound.state == GameModes.States.PLAYING and CurrentRound.gamemode and
-           CurrentRound.gamemode.id == "bomb" and Bomb.bombTimer > 0 then
+           CurrentRound.gamemode.id == "bomb" then
 
-            -- 폭탄 타이머 표시
-            SetTextFont(4)
-            SetTextProportional(1)
-            SetTextScale(0.6, 0.6)
-            SetTextColour(255, 255, 255, 255)
-            SetTextDropshadow(0, 0, 0, 0, 255)
-            SetTextEdge(2, 0, 0, 0, 150)
-            SetTextDropShadow()
-            SetTextOutline()
-            SetTextEntry("STRING")
+            local vehicle = LocalPlayer.vehicle
 
-            local timerText = "폭탄 타이머: " .. Utils.FormatTime(Bomb.bombTimer)
-            if Bomb.hasBomb then
-                -- 폭탄 소유자 - 빨간색
-                SetTextColour(255, 50, 50, 255)
-            end
-
-            AddTextComponentString(timerText)
-            DrawText(0.5, 0.05)
+            SendNUIMessage({
+                action = 'updateBombHUD',
+                timer = Bomb.bombTimer,
+                bombHolder = Bomb.bombHolder,
+                hasBomb = Bomb.hasBomb,
+                health = vehicle and DoesEntityExist(vehicle) and GetVehicleEngineHealth(vehicle) or 0,
+                maxHealth = 1000,
+                speed = vehicle and DoesEntityExist(vehicle) and math.floor(GetEntitySpeed(vehicle) * 3.6) or 0
+            })
         else
             Wait(500)
         end

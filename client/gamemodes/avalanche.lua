@@ -182,17 +182,22 @@ function StartRendering()
                     false, true, 2, false, nil, nil, false
                 )
 
-                -- 3D 텍스트
+                -- 3D 텍스트 (NUI 사용)
                 local playerCoords = GetEntityCoords(PlayerPedId())
                 local distance = #(playerCoords - finishLine)
 
                 if distance < 100.0 then
-                    DrawText3D(finishLine.x, finishLine.y, finishLine.z + 2.0, "골인 지점")
+                    ShowText3D(
+                        vector3(finishLine.x, finishLine.y, finishLine.z + 2.0),
+                        "골인 지점",
+                        { id = 'finish-line', style = 'finish-line' }
+                    )
                 end
             end
 
             -- 아발란체 차량 경고 표시
             local playerCoords = GetEntityCoords(PlayerPedId())
+            local nearbyVehicle = false
 
             for vehicleId, vehicleData in pairs(Avalanche.avalancheVehicles) do
                 if DoesEntityExist(vehicleData.vehicle) then
@@ -210,32 +215,27 @@ function StartRendering()
                             255, 0, 0, 150,
                             false, true, 2, false, nil, nil, false
                         )
+
+                        nearbyVehicle = true
                     end
                 end
+            end
+
+            -- 경고 메시지 표시/숨김
+            if nearbyVehicle then
+                SendNUIMessage({
+                    action = 'showWarning',
+                    message = '낙하 차량 접근 중!'
+                })
+            else
+                SendNUIMessage({
+                    action = 'hideWarning'
+                })
             end
         end
 
         Avalanche.renderThread = nil
     end)
-end
-
--- 3D 텍스트 그리기
-function DrawText3D(x, y, z, text)
-    local onScreen, _x, _y = World3dToScreen2d(x, y, z)
-
-    if onScreen then
-        SetTextScale(0.5, 0.5)
-        SetTextFont(4)
-        SetTextProportional(1)
-        SetTextColour(0, 255, 0, 255)
-        SetTextEntry("STRING")
-        SetTextCentre(1)
-        AddTextComponentString(text)
-        DrawText(_x, _y)
-
-        local factor = (string.len(text)) / 370
-        DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 0, 0, 0, 75)
-    end
 end
 
 -- HUD 업데이트 루프

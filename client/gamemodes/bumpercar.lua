@@ -122,13 +122,18 @@ function StartTargeting()
                     if targetPed and IsPedAPlayer(targetPed) and targetPed ~= PlayerPedId() then
                         BumperCar.currentTarget = entityHit
 
-                        -- 조준점 그리기
+                        -- 타겟 마커 그리기
                         DrawTargetMarker(entityHit)
+
+                        -- 조준점 표시 (타겟 중)
+                        ShowCrosshair(true)
                     else
                         BumperCar.currentTarget = nil
+                        ShowCrosshair(false)
                     end
                 else
                     BumperCar.currentTarget = nil
+                    ShowCrosshair(false)
                 end
             else
                 Wait(500)
@@ -137,6 +142,7 @@ function StartTargeting()
 
         BumperCar.targetingThread = nil
         BumperCar.currentTarget = nil
+        HideCrosshair()
     end)
 end
 
@@ -154,15 +160,6 @@ function DrawTargetMarker(entity)
         255, 0, 0, 150,
         false, true, 2, false, nil, nil, false
     )
-
-    -- 2D 조준점
-    local onScreen, _x, _y = GetScreenCoordFromWorldCoord(coords.x, coords.y, coords.z + 1.0)
-
-    if onScreen then
-        -- 십자 조준선
-        DrawRect(_x, _y, 0.002, 0.03, 255, 0, 0, 255)
-        DrawRect(_x, _y, 0.03, 0.002, 255, 0, 0, 255)
-    end
 end
 
 -- 회전을 방향 벡터로 변환
@@ -268,9 +265,13 @@ CreateThread(function()
                         true, true, 2, false, nil, nil, false
                     )
 
-                    -- 3D 텍스트
+                    -- 3D 텍스트 (NUI 사용)
                     if distance < 30.0 then
-                        DrawText3D(itemData.coords.x, itemData.coords.y, itemData.coords.z + 1.0, itemData.name)
+                        ShowText3D(
+                            vector3(itemData.coords.x, itemData.coords.y, itemData.coords.z + 1.0),
+                            itemData.name,
+                            { id = 'bumper-item-' .. itemId, style = 'item-pickup' }
+                        )
                     end
 
                     -- 근처에 있으면 습득
@@ -284,25 +285,6 @@ CreateThread(function()
         end
     end
 end)
-
--- 3D 텍스트 그리기
-function DrawText3D(x, y, z, text)
-    local onScreen, _x, _y = World3dToScreen2d(x, y, z)
-
-    if onScreen then
-        SetTextScale(0.35, 0.35)
-        SetTextFont(4)
-        SetTextProportional(1)
-        SetTextColour(255, 255, 255, 215)
-        SetTextEntry("STRING")
-        SetTextCentre(1)
-        AddTextComponentString(text)
-        DrawText(_x, _y)
-
-        local factor = (string.len(text)) / 370
-        DrawRect(_x, _y + 0.0125, 0.015 + factor, 0.03, 0, 0, 0, 75)
-    end
-end
 
 -- 플레이어 위치 표시 (서든 데스)
 RegisterNetEvent('minigames:client:showPlayerPositions', function(playerIds)
