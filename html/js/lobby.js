@@ -42,7 +42,8 @@ const elements = {
     playerCount: document.getElementById('player-count'),
     spectatorCount: document.getElementById('spectator-count'),
     timerValue: document.getElementById('timer-value'),
-    timerSection: document.getElementById('timer-section')
+    timerSection: document.getElementById('timer-section'),
+    timerLabel: document.querySelector('.timer-label')
 };
 
 // ========================================
@@ -50,6 +51,14 @@ const elements = {
 // ========================================
 window.addEventListener('message', (event) => {
     const data = event.data;
+
+    // 디버그 로그
+    console.log('[Lobby] NUI Message:', data);
+
+    if (!data.action) {
+        console.warn('[Lobby] No action in message:', data);
+        return;
+    }
 
     switch (data.action) {
         case 'openLobby':
@@ -71,6 +80,9 @@ window.addEventListener('message', (event) => {
         case 'chatMessage':
             addChatMessage(data.sender, data.message);
             break;
+
+        default:
+            console.warn('[Lobby] Unknown action:', data.action);
     }
 });
 
@@ -264,6 +276,11 @@ function createVoteItem(item, type) {
     const voteItem = document.createElement('div');
     voteItem.className = 'vote-item';
 
+    // 배경 이미지 설정
+    if (item.image) {
+        voteItem.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6)), url('${item.image}')`;
+    }
+
     // 선택 상태 확인
     const isSelected = type === 'gamemode'
         ? item.id === lobbyData.myVotedGamemode
@@ -279,15 +296,11 @@ function createVoteItem(item, type) {
     }
 
     voteItem.innerHTML = `
-        <div class="vote-item-header">
-            <img src="${item.image}" alt="${item.name}" class="vote-item-img"
-                 onerror="this.src='img/placeholder.png'">
-            <div class="vote-item-info">
-                <div class="vote-item-name">${escapeHtml(item.name)}</div>
-                <div class="vote-item-votes">투표 수: ${item.votes || 0}</div>
-            </div>
+        <div class="vote-item-info">
+            <div class="vote-item-name">${escapeHtml(item.name)}</div>
+            ${item.description ? `<div class="vote-item-description">${escapeHtml(item.description)}</div>` : ''}
+            <div class="vote-item-votes">투표 수: ${item.votes || 0}</div>
         </div>
-        ${item.description ? `<div class="vote-item-description">${escapeHtml(item.description)}</div>` : ''}
     `;
 
     // 클릭 이벤트
@@ -355,13 +368,22 @@ function addChatMessage(sender, message) {
 // 타이머
 // ========================================
 function updateTimer(time) {
+    // 타이머가 없거나 0 이하면 "플레이어를 기다리는 중" 표시
     if (!time || time <= 0) {
-        elements.timerSection.style.display = 'none';
+        elements.timerSection.style.display = 'block';
+        if (elements.timerLabel) {
+            elements.timerLabel.textContent = '상태';
+        }
+        elements.timerValue.textContent = '대기 중';
         return;
     }
 
     elements.timerSection.style.display = 'block';
     lobbyData.timer = time;
+
+    if (elements.timerLabel) {
+        elements.timerLabel.textContent = '게임 시작까지';
+    }
 
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;

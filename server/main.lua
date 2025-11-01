@@ -105,6 +105,9 @@ function InitializePlayer(src)
     -- 모든 플레이어에게 새 플레이어 알림
     TriggerClientEvent('minigames:client:playerJoined', -1, src, playerData)
 
+    -- 플레이어 리스트 브로드캐스트
+    BroadcastPlayerList()
+
     Utils.Info('Player ' .. playerData.name .. ' (' .. src .. ') joined the server')
 end
 
@@ -122,6 +125,9 @@ function CleanupPlayer(src)
 
     -- 모든 플레이어에게 플레이어 나감 알림
     TriggerClientEvent('minigames:client:playerLeft', -1, src)
+
+    -- 플레이어 리스트 브로드캐스트
+    BroadcastPlayerList()
 
     Utils.Info('Player ' .. playerName .. ' (' .. src .. ') left the server')
 end

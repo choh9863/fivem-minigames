@@ -48,6 +48,9 @@ function OpenLobby(data)
             isSpectating = false
         }
     })
+
+    -- 서버에 로비 데이터 요청
+    TriggerServerEvent('minigames:server:requestLobbyData')
 end
 
 -- ========================================
@@ -182,6 +185,59 @@ end)
 -- 채팅 메시지
 RegisterNetEvent('minigames:client:chatMessage', function(sender, message)
     ReceiveChatMessage(sender, message)
+end)
+
+-- 채팅 메시지 수신
+RegisterNetEvent('minigames:client:receiveChatMessage', function(sender, message)
+    ReceiveChatMessage(sender, message)
+end)
+
+-- 플레이어 리스트 업데이트
+RegisterNetEvent('minigames:client:updatePlayerList', function(playerList, spectatorList)
+    if not isLobbyOpen then return end
+
+    SendNUIMessage({
+        action = 'updateLobbyData',
+        data = {
+            players = playerList,
+            spectators = spectatorList
+        }
+    })
+end)
+
+-- 투표 업데이트
+RegisterNetEvent('minigames:client:updateVotes', function(votes)
+    if not isLobbyOpen then return end
+
+    -- 투표 수를 게임모드와 맵에 반영
+    local gamemodes = {}
+    for _, mode in ipairs(Config.Gamemodes) do
+        local voteCount = 0
+        if votes.gamemode[mode.id] then
+            voteCount = #votes.gamemode[mode.id]
+        end
+
+        table.insert(gamemodes, {
+            id = mode.id,
+            name = mode.name,
+            description = mode.description,
+            image = mode.image,
+            votes = voteCount
+        })
+    end
+
+    -- 현재 선택된 게임모드의 맵 가져오기
+    local maps = {}
+    -- TODO: 선택된 게임모드에 따른 맵 필터링
+
+    SendNUIMessage({
+        action = 'updateLobbyData',
+        data = {
+            gamemodes = gamemodes,
+            maps = maps,
+            votes = votes
+        }
+    })
 end)
 
 -- ========================================

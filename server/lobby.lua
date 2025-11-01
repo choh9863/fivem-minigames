@@ -2,6 +2,39 @@
 -- LOBBY MANAGEMENT
 -- ========================================
 
+-- 플레이어 리스트 브로드캐스트
+function BroadcastPlayerList()
+    -- 플레이어 리스트
+    local playerList = {}
+    for playerId, player in pairs(Players) do
+        if not player.spectating then
+            table.insert(playerList, {
+                source = playerId,
+                name = player.name,
+                level = player.level,
+                rank = player.rank,
+                ready = player.ready
+            })
+        end
+    end
+
+    -- 관전자 리스트
+    local spectatorList = {}
+    for playerId, player in pairs(Players) do
+        if player.spectating then
+            table.insert(spectatorList, {
+                source = playerId,
+                name = player.name,
+                level = player.level,
+                rank = player.rank
+            })
+        end
+    end
+
+    -- 모든 클라이언트에 전송
+    TriggerClientEvent('minigames:client:updatePlayerList', -1, playerList, spectatorList)
+end
+
 -- 로비 데이터 요청
 RegisterNetEvent('minigames:server:requestLobbyData', function()
     local src = source
@@ -72,13 +105,7 @@ RegisterNetEvent('minigames:server:chatMessage', function(message)
     -- TODO: 욕설 필터 구현
 
     -- 모든 플레이어에게 채팅 메시지 전송
-    TriggerClientEvent('minigames:client:receiveChatMessage', -1, {
-        source = src,
-        name = player.name,
-        rank = player.rank,
-        message = message,
-        timestamp = os.time()
-    })
+    TriggerClientEvent('minigames:client:receiveChatMessage', -1, player.name, message)
 
     Utils.Debug('Chat message from ' .. player.name .. ': ' .. message)
 end)

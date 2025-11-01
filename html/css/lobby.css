@@ -26,7 +26,7 @@ body {
     width: 100vw;
     height: 100vh;
     display: grid;
-    grid-template-columns: 320px 1fr 380px;
+    grid-template-columns: 320px 1fr 520px;
     gap: 20px;
     padding: 40px;
     background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(20, 20, 20, 0.98));
@@ -306,9 +306,9 @@ body {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     align-content: start;
 }
 
@@ -326,12 +326,14 @@ body {
 }
 
 .player-card {
+    width: 100%;
     padding: 16px;
     background: linear-gradient(135deg, #1a1a1a, #151515);
     border: 2px solid #4a4a4a;
     border-radius: 8px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
     transition: all 0.3s ease;
     animation: playerCardIn 0.4s ease;
@@ -480,13 +482,15 @@ body {
 
 .vote-item {
     position: relative;
-    padding: 12px;
+    height: 160px;
     background: linear-gradient(135deg, #1a1a1a, #151515);
     border: 2px solid #4a4a4a;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     overflow: hidden;
+    background-size: cover;
+    background-position: center;
 }
 
 .vote-item::before {
@@ -524,26 +528,35 @@ body {
 }
 
 .vote-item-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
+    display: none;
 }
 
 .vote-item-img {
-    width: 48px;
-    height: 48px;
-    border-radius: 6px;
-    object-fit: cover;
-    border: 2px solid #4a4a4a;
-}
-
-.vote-item.selected .vote-item-img {
-    border-color: #00d9ff;
+    display: none;
 }
 
 .vote-item-info {
-    flex: 1;
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 10px 14px;
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.vote-item:hover .vote-item-info {
+    background: rgba(0, 0, 0, 0.95);
+    border-color: rgba(0, 217, 255, 0.6);
+    transform: scale(1.05);
+}
+
+.vote-item.selected .vote-item-info {
+    background: rgba(0, 217, 255, 0.2);
+    border-color: #00d9ff;
+    box-shadow: 0 0 16px rgba(0, 217, 255, 0.4);
 }
 
 .vote-item-name {
@@ -551,6 +564,7 @@ body {
     font-weight: 700;
     color: #ffffff;
     margin-bottom: 4px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .vote-item-votes {
@@ -558,12 +572,15 @@ body {
     font-weight: 600;
     color: #00d9ff;
     font-family: 'Rajdhani', sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .vote-item-description {
-    font-size: 13px;
+    font-size: 12px;
     color: #e0e0e0;
     line-height: 1.4;
+    margin-top: 4px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 /* 타이머 섹션 */
@@ -701,13 +718,9 @@ body {
    ======================================== */
 @media screen and (max-width: 1600px) {
     #lobby-container {
-        grid-template-columns: 280px 1fr 340px;
+        grid-template-columns: 280px 1fr 480px;
         gap: 16px;
         padding: 30px;
-    }
-
-    .player-list {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
 }
 

@@ -24,8 +24,8 @@ RegisterNetEvent('minigames:server:toggleReady', function()
     -- 준비 상태 토글
     player.ready = not player.ready
 
-    -- 모든 플레이어에게 업데이트
-    TriggerClientEvent('minigames:client:playerReadyUpdate', -1, src, player.ready)
+    -- 모든 클라이언트에 플레이어 리스트 업데이트
+    BroadcastPlayerList()
 
     Utils.Debug('Player ' .. player.name .. ' ready status: ' .. tostring(player.ready))
 end)
@@ -51,11 +51,11 @@ RegisterNetEvent('minigames:server:toggleSpectate', function()
         player.ready = false
     end
 
-    -- 모든 플레이어에게 업데이트
-    TriggerClientEvent('minigames:client:playerSpectateUpdate', -1, src, player.spectating)
-
     -- 클라이언트에 관전 모드 토글
     TriggerClientEvent('minigames:client:setSpectateMode', src, player.spectating)
+
+    -- 모든 클라이언트에 플레이어 리스트 업데이트
+    BroadcastPlayerList()
 
     Utils.Debug('Player ' .. player.name .. ' spectate status: ' .. tostring(player.spectating))
 end)
