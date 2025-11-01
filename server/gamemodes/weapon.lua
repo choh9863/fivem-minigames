@@ -1,5 +1,5 @@
 -- ========================================
--- WEAPON GAMEMODE - SERVER
+-- WEAPON GAMEMODE - SERVER (차량 무기 시스템)
 -- ========================================
 
 local Weapon = {
@@ -10,7 +10,9 @@ local Weapon = {
     suddenDeathThread = nil
 }
 
+-- ========================================
 -- 라운드 준비
+-- ========================================
 AddEventHandler('minigames:server:gamemode:prepare:weapon', function()
     Utils.Info('Weapon: Preparing round')
 
@@ -46,13 +48,23 @@ AddEventHandler('minigames:server:gamemode:prepare:weapon', function()
                     stats = vehicleData
                 }
 
-                -- 기본 무기 부여
-                player.weapon = Config.Weapon.Weapons[1] -- 첫 번째 무기 (pistol 등)
-                player.ammo = player.weapon.ammo
-                player.isReloading = false
+                -- 기본 무기 부여 (권총)
+                local defaultWeapon = nil
+                for _, weapon in ipairs(Config.Weapon.Weapons) do
+                    if weapon.id == "pistol" then
+                        defaultWeapon = weapon
+                        break
+                    end
+                end
 
-                -- 클라이언트에 무기 부여 알림
-                TriggerClientEvent('minigames:client:equipWeapon', playerId, player.weapon)
+                if defaultWeapon then
+                    player.weapon = defaultWeapon
+                    player.ammo = defaultWeapon.maxAmmo
+                    player.isReloading = false
+
+                    -- 클라이언트에 무기 부여 알림
+                    TriggerClientEvent('minigames:client:weapon:equip', playerId, defaultWeapon)
+                end
 
                 spawnIndex = spawnIndex + 1
                 if spawnIndex > #spawns then
@@ -65,7 +77,9 @@ AddEventHandler('minigames:server:gamemode:prepare:weapon', function()
     Utils.Info('Weapon: Round prepared')
 end)
 
+-- ========================================
 -- 라운드 시작
+-- ========================================
 AddEventHandler('minigames:server:gamemode:start:weapon', function()
     Utils.Info('Weapon: Starting round')
 
@@ -83,7 +97,9 @@ AddEventHandler('minigames:server:gamemode:start:weapon', function()
     Utils.Info('Weapon: Round started')
 end)
 
+-- ========================================
 -- 라운드 종료
+-- ========================================
 AddEventHandler('minigames:server:gamemode:end:weapon', function(winners)
     Utils.Info('Weapon: Ending round')
 
@@ -93,16 +109,22 @@ AddEventHandler('minigames:server:gamemode:end:weapon', function(winners)
     -- 서든 데스 중지
     StopSuddenDeath()
 
-    -- 모든 차량 제거
+    -- 모든 차량 및 무기 제거
     for playerId, _ in pairs(Players) do
         TriggerClientEvent('minigames:client:deleteVehicle', playerId)
-        TriggerClientEvent('minigames:client:removeWeapon', playerId)
+        TriggerClientEvent('minigames:client:weapon:remove', playerId)
     end
+
+    -- 모든 발사체 제거
+    Weapon.projectiles = {}
+    TriggerClientEvent('minigames:client:weapon:clearAllProjectiles', -1)
 
     Utils.Info('Weapon: Round ended')
 end)
 
+-- ========================================
 -- 서든 데스 활성화
+-- ========================================
 AddEventHandler('minigames:server:gamemode:suddendeath:weapon', function()
     Utils.Info('Weapon: Sudden death activated')
 
@@ -111,16 +133,21 @@ AddEventHandler('minigames:server:gamemode:suddendeath:weapon', function()
     -- 모든 플레이어에게 알림
     TriggerClientEvent('minigames:client:notify', -1, '서든 데스! 모든 차량의 체력이 감소합니다!', 'warning')
 
-    -- 체력 감소 및 위치 표시 시작
+    -- 체력 감소 시작
     StartSuddenDeath()
 end)
 
+-- ========================================
 -- 무기 스폰 시작
+-- ========================================
 function StartWeaponSpawning()
     if Weapon.weaponSpawnThread then return end
 
     local map = CurrentRound.map
-    if not map.weaponSpawns then return end
+    if not map.weaponSpawns or #map.weaponSpawns == 0 then
+        Utils.Warn('Weapon: No weapon spawn points found')
+        return
+    end
 
     Weapon.weaponSpawnThread = CreateThread(function()
         while CurrentRound.state == GameModes.States.PLAYING and not Weapon.suddenDeathActive do
@@ -129,23 +156,31 @@ function StartWeaponSpawning()
             -- 랜덤 스폰 위치 선택
             local spawnPos = Utils.GetRandomElement(map.weaponSpawns)
             if spawnPos then
-                -- 랜덤 무기 선택
-                local weapon = Utils.GetRandomElement(Config.Weapon.Weapons)
+                -- 랜덤 무기 선택 (권총 제외)
+                local availableWeapons = {}
+                for _, weapon in ipairs(Config.Weapon.Weapons) do
+                    if weapon.id ~= "pistol" then
+                        table.insert(availableWeapons, weapon)
+                    end
+                end
 
-                -- 무기 ID 생성
-                local weaponId = 'weapon_' .. GetGameTimer() .. '_' .. math.random(1000, 9999)
+                local weapon = Utils.GetRandomElement(availableWeapons)
+                if weapon then
+                    -- 무기 ID 생성
+                    local weaponId = 'weapon_' .. GetGameTimer() .. '_' .. math.random(1000, 9999)
 
-                -- 무기 스폰
-                Weapon.spawnedWeapons[weaponId] = {
-                    id = weaponId,
-                    coords = spawnPos,
-                    weapon = weapon
-                }
+                    -- 무기 스폰
+                    Weapon.spawnedWeapons[weaponId] = {
+                        id = weaponId,
+                        coords = spawnPos,
+                        weapon = weapon
+                    }
 
-                -- 모든 클라이언트에 무기 스폰 알림
-                TriggerClientEvent('minigames:client:spawnWeaponPickup', -1, weaponId, spawnPos, weapon)
+                    -- 모든 클라이언트에 무기 스폰 알림
+                    TriggerClientEvent('minigames:client:weapon:spawnPickup', -1, weaponId, spawnPos, weapon)
 
-                Utils.Debug('Spawned weapon: ' .. weapon.name .. ' at ' .. tostring(spawnPos))
+                    Utils.Debug('Spawned weapon: ' .. weapon.name .. ' at ' .. tostring(spawnPos))
+                end
             end
         end
 
@@ -153,14 +188,18 @@ function StartWeaponSpawning()
     end)
 end
 
+-- ========================================
 -- 무기 스폰 중지
+-- ========================================
 function StopWeaponSpawning()
     Weapon.spawnedWeapons = {}
     -- 모든 클라이언트에 무기 제거 알림
-    TriggerClientEvent('minigames:client:clearWeaponPickups', -1)
+    TriggerClientEvent('minigames:client:weapon:clearPickups', -1)
 end
 
+-- ========================================
 -- 서든 데스 시작
+-- ========================================
 function StartSuddenDeath()
     if Weapon.suddenDeathThread then return end
 
@@ -178,33 +217,27 @@ function StartSuddenDeath()
 
                     -- 체력이 0 이하면 사망 처리
                     if player.vehicle.health <= 0 then
-                        TriggerEvent('minigames:server:playerDied', playerId)
+                        TriggerEvent('minigames:server:weapon:playerDied', playerId)
                     end
                 end
             end
-
-            -- 모든 플레이어 위치 표시
-            local playerPositions = {}
-            for playerId, player in pairs(Players) do
-                if player.state == GameModes.PlayerStates.PLAYING then
-                    table.insert(playerPositions, playerId)
-                end
-            end
-
-            TriggerClientEvent('minigames:client:showPlayerPositions', -1, playerPositions)
         end
 
         Weapon.suddenDeathThread = nil
     end)
 end
 
+-- ========================================
 -- 서든 데스 중지
+-- ========================================
 function StopSuddenDeath()
     Weapon.suddenDeathActive = false
 end
 
+-- ========================================
 -- 무기 습득 처리
-RegisterNetEvent('minigames:server:pickupWeapon', function(weaponId)
+-- ========================================
+RegisterNetEvent('minigames:server:weapon:pickupWeapon', function(weaponId)
     local src = source
     local player = Players[src]
 
@@ -218,20 +251,23 @@ RegisterNetEvent('minigames:server:pickupWeapon', function(weaponId)
     Weapon.spawnedWeapons[weaponId] = nil
 
     -- 모든 클라이언트에 무기 제거 알림
-    TriggerClientEvent('minigames:client:removeWeaponPickup', -1, weaponId)
+    TriggerClientEvent('minigames:client:weapon:removePickup', -1, weaponId)
 
     -- 플레이어에게 무기 장착
     player.weapon = spawnedWeapon.weapon
-    player.ammo = spawnedWeapon.weapon.ammo
+    player.ammo = spawnedWeapon.weapon.maxAmmo
     player.isReloading = false
 
-    TriggerClientEvent('minigames:client:equipWeapon', src, spawnedWeapon.weapon)
+    TriggerClientEvent('minigames:client:weapon:equip', src, spawnedWeapon.weapon)
+    TriggerClientEvent('minigames:client:notify', src, spawnedWeapon.weapon.name .. ' 획득!', 'success')
 
     Utils.Debug('Player ' .. player.name .. ' picked up weapon: ' .. spawnedWeapon.weapon.name)
 end)
 
+-- ========================================
 -- 무기 발사 처리
-RegisterNetEvent('minigames:server:fireWeapon', function(origin, direction, weaponData, homing, targetId)
+-- ========================================
+RegisterNetEvent('minigames:server:weapon:fire', function(projectilesData)
     local src = source
     local player = Players[src]
 
@@ -239,132 +275,151 @@ RegisterNetEvent('minigames:server:fireWeapon', function(origin, direction, weap
     if not player.weapon or player.isReloading then return end
 
     -- 탄약 체크
-    if player.ammo <= 0 then
-        TriggerClientEvent('minigames:client:notify', src, '탄약이 부족합니다!', 'warning')
+    local shotsToFire = #projectilesData
+    if player.ammo < shotsToFire then
         return
     end
 
     -- 탄약 소모
-    player.ammo = player.ammo - 1
+    player.ammo = player.ammo - shotsToFire
 
     -- 클라이언트에 탄약 업데이트
-    TriggerClientEvent('minigames:client:updateAmmo', src, player.ammo)
+    TriggerClientEvent('minigames:client:weapon:updateAmmo', src, player.ammo)
 
     -- 발사체 생성
-    local projectileId = 'projectile_' .. GetGameTimer() .. '_' .. math.random(1000, 9999)
+    for _, projData in ipairs(projectilesData) do
+        local projectileId = 'projectile_' .. GetGameTimer() .. '_' .. math.random(1000, 9999)
 
-    local projectile = {
-        id = projectileId,
-        owner = src,
-        origin = origin,
-        direction = direction,
-        speed = 100.0,
-        damage = weaponData.damage or 100,
-        homing = homing,
-        targetId = targetId,
-        spawnTime = GetGameTimer()
-    }
+        local projectile = {
+            id = projectileId,
+            owner = src,
+            ownerName = player.name,
+            origin = projData.origin,
+            direction = projData.direction,
+            weaponData = player.weapon,
+            spawnTime = GetGameTimer(),
+            active = true
+        }
 
-    Weapon.projectiles[projectileId] = projectile
+        Weapon.projectiles[projectileId] = projectile
 
-    -- 모든 클라이언트에 발사체 생성 알림
-    TriggerClientEvent('minigames:client:createProjectile', -1, projectileId, projectile)
+        -- 모든 클라이언트에 발사체 생성 알림
+        TriggerClientEvent('minigames:client:weapon:createProjectile', -1, projectileId, projectile)
+    end
 
-    Utils.Debug('Player ' .. player.name .. ' fired weapon')
-
-    -- 발사체 업데이트 시작
-    UpdateProjectile(projectileId)
+    Utils.Debug('Player ' .. player.name .. ' fired weapon: ' .. shotsToFire .. ' shots')
 end)
 
--- 발사체 업데이트
-function UpdateProjectile(projectileId)
-    CreateThread(function()
-        local maxLifetime = 5000 -- 5초
-        local updateInterval = 50 -- 50ms
-
-        while Weapon.projectiles[projectileId] do
-            Wait(updateInterval)
-
-            local projectile = Weapon.projectiles[projectileId]
-            if not projectile then break end
-
-            -- 수명 체크
-            if GetGameTimer() - projectile.spawnTime > maxLifetime then
-                -- 발사체 제거
-                TriggerClientEvent('minigames:client:removeProjectile', -1, projectileId)
-                Weapon.projectiles[projectileId] = nil
-                break
-            end
-
-            -- 충돌 체크는 클라이언트에서 처리
-        end
-    end)
-end
-
+-- ========================================
 -- 발사체 충돌 처리
-RegisterNetEvent('minigames:server:projectileHit', function(projectileId, targetId)
+-- ========================================
+RegisterNetEvent('minigames:server:weapon:projectileHit', function(projectileId, targetVehicle, hitCoords)
     local src = source
     local projectile = Weapon.projectiles[projectileId]
 
-    if not projectile then return end
+    if not projectile or not projectile.active then return end
 
-    local target = Players[targetId]
-    if not target or target.state ~= GameModes.PlayerStates.PLAYING then return end
+    -- 발사체 비활성화
+    projectile.active = false
 
-    -- 데미지 적용
-    if target.vehicle then
-        target.vehicle.health = target.vehicle.health - projectile.damage
-        TriggerClientEvent('minigames:client:vehicleDamage', targetId, projectile.damage)
-
-        -- 체력이 0 이하면 사망 처리
-        if target.vehicle.health <= 0 then
-            -- 킬 카운트
-            local attacker = Players[projectile.owner]
-            if attacker then
-                attacker.stats.kills = attacker.stats.kills + 1
-            end
-
-            TriggerEvent('minigames:server:playerDied', targetId)
+    -- 타겟 플레이어 찾기
+    local targetId = nil
+    for playerId, player in pairs(Players) do
+        if player.state == GameModes.PlayerStates.PLAYING and player.vehicle then
+            -- 클라이언트에서 네트워크 ID를 전달받음
+            local netId = NetworkGetNetworkIdFromEntity(targetVehicle)
+            TriggerClientEvent('minigames:client:weapon:checkVehicleOwnership', playerId, netId, projectileId, projectile.weaponData.damage)
         end
     end
 
     -- 발사체 제거
-    TriggerClientEvent('minigames:client:removeProjectile', -1, projectileId)
-    Weapon.projectiles[projectileId] = nil
+    SetTimeout(100, function()
+        Weapon.projectiles[projectileId] = nil
+        TriggerClientEvent('minigames:client:weapon:removeProjectile', -1, projectileId)
+    end)
 
-    Utils.Debug('Projectile hit player ' .. targetId)
+    Utils.Debug('Projectile ' .. projectileId .. ' hit vehicle')
 end)
 
+-- ========================================
+-- 차량 데미지 확인
+-- ========================================
+RegisterNetEvent('minigames:server:weapon:confirmVehicleHit', function(projectileId, damage)
+    local src = source
+    local player = Players[src]
+
+    if not player or player.state ~= GameModes.PlayerStates.PLAYING then return end
+    if not player.vehicle then return end
+
+    local projectile = Weapon.projectiles[projectileId]
+    if not projectile then return end
+
+    -- 자신의 발사체는 무시
+    if projectile.owner == src then return end
+
+    -- 데미지 적용
+    player.vehicle.health = player.vehicle.health - damage
+    TriggerClientEvent('minigames:client:vehicleDamage', src, damage)
+
+    Utils.Debug('Player ' .. player.name .. ' took ' .. damage .. ' damage (health: ' .. player.vehicle.health .. ')')
+
+    -- 체력이 0 이하면 사망 처리
+    if player.vehicle.health <= 0 then
+        -- 킬 카운트
+        local attacker = Players[projectile.owner]
+        if attacker then
+            attacker.stats.kills = attacker.stats.kills + 1
+            TriggerClientEvent('minigames:client:notify', projectile.owner,
+                player.name .. ' 처치!', 'success')
+        end
+
+        TriggerEvent('minigames:server:weapon:playerDied', src)
+    end
+end)
+
+-- ========================================
 -- 재장전 처리
-RegisterNetEvent('minigames:server:reloadWeapon', function()
+-- ========================================
+RegisterNetEvent('minigames:server:weapon:reload', function()
     local src = source
     local player = Players[src]
 
     if not player or player.state ~= GameModes.PlayerStates.PLAYING then return end
     if not player.weapon or player.isReloading then return end
 
+    -- 이미 최대 탄약이면 재장전 불필요
+    if player.ammo >= player.weapon.maxAmmo then
+        TriggerClientEvent('minigames:client:notify', src, '탄약이 가득 찼습니다!', 'info')
+        return
+    end
+
     -- 재장전 시작
     player.isReloading = true
 
     -- 클라이언트에 재장전 알림
-    TriggerClientEvent('minigames:client:startReload', src, player.weapon.reloadTime)
+    TriggerClientEvent('minigames:client:weapon:startReload', src, player.weapon.reloadTime)
+
+    Utils.Debug('Player ' .. player.name .. ' started reloading')
 
     -- 재장전 시간 후 완료
-    SetTimeout(player.weapon.reloadTime * 1000, function()
+    SetTimeout(player.weapon.reloadTime, function()
         if player and player.weapon then
-            player.ammo = player.weapon.ammo
+            player.ammo = player.weapon.maxAmmo
             player.isReloading = false
 
-            TriggerClientEvent('minigames:client:updateAmmo', src, player.ammo)
+            TriggerClientEvent('minigames:client:weapon:updateAmmo', src, player.ammo)
+            TriggerClientEvent('minigames:client:weapon:finishReload', src)
             TriggerClientEvent('minigames:client:notify', src, '재장전 완료!', 'success')
 
-            Utils.Debug('Player ' .. player.name .. ' reloaded weapon')
+            Utils.Debug('Player ' .. player.name .. ' finished reloading')
         end
     end)
 end)
 
+-- ========================================
 -- 플레이어 사망 처리
-RegisterNetEvent('minigames:server:playerDied', function(playerId)
+-- ========================================
+RegisterNetEvent('minigames:server:weapon:playerDied', function(playerId)
     playerId = playerId or source
     local player = Players[playerId]
 
@@ -376,9 +431,11 @@ RegisterNetEvent('minigames:server:playerDied', function(playerId)
 
     -- 차량 제거
     TriggerClientEvent('minigames:client:deleteVehicle', playerId)
+    TriggerClientEvent('minigames:client:weapon:remove', playerId)
 
     -- 모든 플레이어에게 사망 알림
     TriggerClientEvent('minigames:client:playerDied', -1, playerId, player.name)
+    TriggerClientEvent('minigames:client:notify', -1, player.name .. '님이 사망했습니다!', 'error')
 
     Utils.Info('Player ' .. player.name .. ' died')
 
@@ -386,7 +443,9 @@ RegisterNetEvent('minigames:server:playerDied', function(playerId)
     CheckWinCondition()
 end)
 
+-- ========================================
 -- 승리 조건 체크
+-- ========================================
 function CheckWinCondition()
     local alivePlayers = {}
 

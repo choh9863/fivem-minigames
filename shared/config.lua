@@ -392,7 +392,34 @@ Config.Weapon = {
     Vehicles = {
         {
             model = "bison",
-            health = 1000
+            health = 1000,
+            weapons = {
+                -- 무기별 부착 위치 (차량 본 기준 오프셋)
+                cannon = {offset = vector3(0.0, 2.5, 0.5), rotation = vector3(0.0, 0.0, 0.0)},
+                minigun = {offset = vector3(0.0, 2.0, 0.3), rotation = vector3(0.0, 0.0, 0.0)},
+                machinegun = {offset = vector3(0.0, 2.2, 0.4), rotation = vector3(0.0, 0.0, 0.0)},
+                homing_missile = {offset = vector3(0.0, 2.0, 0.6), rotation = vector3(0.0, 0.0, 0.0)},
+                pistol = {offset = vector3(0.0, 1.8, 0.3), rotation = vector3(0.0, 0.0, 0.0)},
+                shotgun = {offset = vector3(0.0, 2.0, 0.4), rotation = vector3(0.0, 0.0, 0.0)},
+                sniper = {offset = vector3(0.0, 2.3, 0.5), rotation = vector3(0.0, 0.0, 0.0)},
+                smg = {offset = vector3(0.0, 1.9, 0.3), rotation = vector3(0.0, 0.0, 0.0)},
+                missile = {offset = vector3(0.0, 2.1, 0.5), rotation = vector3(0.0, 0.0, 0.0)}
+            }
+        },
+        {
+            model = "tornado",
+            health = 800,
+            weapons = {
+                cannon = {offset = vector3(0.0, 2.3, 0.4), rotation = vector3(0.0, 0.0, 0.0)},
+                minigun = {offset = vector3(0.0, 1.8, 0.2), rotation = vector3(0.0, 0.0, 0.0)},
+                machinegun = {offset = vector3(0.0, 2.0, 0.3), rotation = vector3(0.0, 0.0, 0.0)},
+                homing_missile = {offset = vector3(0.0, 1.9, 0.5), rotation = vector3(0.0, 0.0, 0.0)},
+                pistol = {offset = vector3(0.0, 1.7, 0.2), rotation = vector3(0.0, 0.0, 0.0)},
+                shotgun = {offset = vector3(0.0, 1.9, 0.3), rotation = vector3(0.0, 0.0, 0.0)},
+                sniper = {offset = vector3(0.0, 2.1, 0.4), rotation = vector3(0.0, 0.0, 0.0)},
+                smg = {offset = vector3(0.0, 1.8, 0.2), rotation = vector3(0.0, 0.0, 0.0)},
+                missile = {offset = vector3(0.0, 2.0, 0.4), rotation = vector3(0.0, 0.0, 0.0)}
+            }
         }
     },
 
@@ -400,94 +427,142 @@ Config.Weapon = {
         {
             id = "cannon",
             name = "대구경포",
+            model = "prop_minigun_01", -- 무기 프롭 모델
+            projectileModel = "w_ex_grenade", -- 발사체 모델
             damage = 100,
             fireRate = 1.0, -- 초당 발사 횟수
+            projectileSpeed = 100.0,
             ammo = 50,
-            reloadTime = 3,
-            model = "prop_canon_01",
-            offset = vector3(0.0, 2.0, 0.5)
-        },
-        {
-            id = "sniper",
-            name = "저격총",
-            damage = 150,
-            fireRate = 0.5,
-            ammo = 20,
-            reloadTime = 2,
-            model = "prop_minigun_01",
-            offset = vector3(0.0, 2.0, 0.5)
-        },
-        {
-            id = "missile",
-            name = "미사일",
-            damage = 200,
-            fireRate = 0.3,
-            ammo = 10,
-            reloadTime = 5,
-            model = "prop_missile_01",
-            offset = vector3(0.0, 2.0, 0.5)
-        },
-        {
-            id = "homing_missile",
-            name = "유도미사일",
-            damage = 250,
-            fireRate = 0.2,
-            ammo = 5,
-            reloadTime = 7,
-            model = "prop_missile_01",
-            offset = vector3(0.0, 2.0, 0.5),
-            homing = true
-        },
-        {
-            id = "pistol",
-            name = "권총",
-            damage = 20,
-            fireRate = 3.0,
-            ammo = 100,
-            reloadTime = 1.5,
-            model = "prop_gun_01",
-            offset = vector3(0.0, 2.0, 0.5)
+            maxAmmo = 50,
+            reloadTime = 3000, -- 밀리초
+            hasGravity = true,
+            explosionType = 2, -- GTA 폭발 타입
+            projectileScale = 0.3
         },
         {
             id = "minigun",
             name = "미니건",
+            model = "prop_minigun_01",
+            projectileModel = "prop_ld_ammo_pack_01", -- 작은 탄환
             damage = 30,
             fireRate = 10.0,
+            projectileSpeed = 150.0,
             ammo = 500,
-            reloadTime = 5,
-            model = "prop_minigun_01",
-            offset = vector3(0.0, 2.0, 0.5)
+            maxAmmo = 500,
+            reloadTime = 5000,
+            hasGravity = false,
+            explosionType = 0, -- 폭발 없음
+            projectileScale = 0.1
+        },
+        {
+            id = "homing_missile",
+            name = "유도미사일",
+            model = "w_lr_rpg",
+            projectileModel = "w_lr_rpg_rocket",
+            damage = 250,
+            fireRate = 0.3,
+            projectileSpeed = 80.0,
+            ammo = 10,
+            maxAmmo = 10,
+            reloadTime = 7000,
+            hasGravity = false,
+            homing = true, -- 유도 기능
+            homingSpeed = 5.0,
+            explosionType = 5, -- 큰 폭발
+            projectileScale = 0.5
+        },
+        {
+            id = "pistol",
+            name = "권총",
+            model = "w_pi_pistol",
+            projectileModel = "prop_ld_ammo_pack_01",
+            damage = 20,
+            fireRate = 3.0,
+            projectileSpeed = 120.0,
+            ammo = 100,
+            maxAmmo = 100,
+            reloadTime = 1500,
+            hasGravity = false,
+            explosionType = 0,
+            projectileScale = 0.08
         },
         {
             id = "machinegun",
             name = "기관총",
+            model = "w_ar_assaultrifle",
+            projectileModel = "prop_ld_ammo_pack_01",
             damage = 40,
             fireRate = 5.0,
+            projectileSpeed = 140.0,
             ammo = 200,
-            reloadTime = 3,
-            model = "prop_minigun_01",
-            offset = vector3(0.0, 2.0, 0.5)
+            maxAmmo = 200,
+            reloadTime = 3000,
+            hasGravity = false,
+            explosionType = 0,
+            projectileScale = 0.12
         },
         {
             id = "smg",
             name = "기관단총",
+            model = "w_smg_smg",
+            projectileModel = "prop_ld_ammo_pack_01",
             damage = 25,
             fireRate = 7.0,
+            projectileSpeed = 130.0,
             ammo = 150,
-            reloadTime = 2,
-            model = "prop_gun_01",
-            offset = vector3(0.0, 2.0, 0.5)
+            maxAmmo = 150,
+            reloadTime = 2000,
+            hasGravity = false,
+            explosionType = 0,
+            projectileScale = 0.1
         },
         {
             id = "shotgun",
             name = "샷건",
+            model = "w_sg_pumpshotgun",
+            projectileModel = "prop_ld_ammo_pack_01",
             damage = 80,
             fireRate = 1.5,
+            projectileSpeed = 110.0,
             ammo = 30,
-            reloadTime = 2.5,
-            model = "prop_gun_01",
-            offset = vector3(0.0, 2.0, 0.5),
-            spread = true
+            maxAmmo = 30,
+            reloadTime = 2500,
+            hasGravity = false,
+            explosionType = 0,
+            spread = true, -- 산탄 효과
+            spreadCount = 5,
+            spreadAngle = 5.0,
+            projectileScale = 0.15
+        },
+        {
+            id = "sniper",
+            name = "저격총",
+            model = "w_sr_sniperrifle",
+            projectileModel = "prop_ld_ammo_pack_01",
+            damage = 150,
+            fireRate = 0.5,
+            projectileSpeed = 200.0,
+            ammo = 20,
+            maxAmmo = 20,
+            reloadTime = 2000,
+            hasGravity = false,
+            explosionType = 0,
+            projectileScale = 0.2
+        },
+        {
+            id = "missile",
+            name = "미사일",
+            model = "w_lr_rpg",
+            projectileModel = "w_lr_rpg_rocket",
+            damage = 200,
+            fireRate = 0.3,
+            projectileSpeed = 90.0,
+            ammo = 10,
+            maxAmmo = 10,
+            reloadTime = 5000,
+            hasGravity = true,
+            explosionType = 4, -- 중형 폭발
+            projectileScale = 0.4
         }
     }
 }
