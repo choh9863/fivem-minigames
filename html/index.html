@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minigames Lobby</title>
+    <link rel="stylesheet" href="css/lobby.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="lobby-container" class="hidden">
+        <!-- 좌측 섹션 -->
+        <div class="left-section">
+            <!-- 컨트롤 버튼 -->
+            <div class="controls">
+                <button id="btn-ready" class="control-btn ready-btn">
+                    <span class="btn-icon">✓</span>
+                    <span class="btn-text">준비 완료</span>
+                </button>
+                <button id="btn-spectate" class="control-btn spectate-btn">
+                    <span class="btn-icon">👁</span>
+                    <span class="btn-text">관전 참여</span>
+                </button>
+                <button id="btn-quit" class="control-btn quit-btn">
+                    <span class="btn-icon">✕</span>
+                    <span class="btn-text">게임 종료</span>
+                </button>
+            </div>
+
+            <!-- 채팅 섹션 -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    <span class="chat-title">채팅</span>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- 채팅 메시지가 여기에 추가됩니다 -->
+                </div>
+                <div class="chat-input-container">
+                    <input
+                        type="text"
+                        id="chat-input"
+                        class="chat-input"
+                        placeholder="메시지를 입력하세요..."
+                        maxlength="128"
+                    >
+                    <button id="btn-send" class="chat-send-btn">전송</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 중앙 섹션 (플레이어 리스트) -->
+        <div class="center-section">
+            <div class="player-list-header">
+                <span class="header-title">플레이어</span>
+                <span class="header-count" id="player-count">0/32</span>
+            </div>
+            <div class="player-list" id="player-list">
+                <!-- 플레이어 카드가 여기에 추가됩니다 -->
+            </div>
+        </div>
+
+        <!-- 우측 섹션 -->
+        <div class="right-section">
+            <!-- 타이머 -->
+            <div class="timer-section" id="timer-section">
+                <div class="timer-label">게임 시작까지</div>
+                <div class="timer-value" id="timer-value">00:00</div>
+            </div>
+
+            <!-- 관전자 리스트 -->
+            <div class="spectator-section">
+                <div class="spectator-header">
+                    <span class="spectator-title">관전자</span>
+                    <span class="spectator-count" id="spectator-count">0</span>
+                </div>
+                <div class="spectator-list" id="spectator-list">
+                    <!-- 관전자 카드가 여기에 추가됩니다 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/lobby.js"></script>
+</body>
+</html>

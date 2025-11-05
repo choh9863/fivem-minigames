@@ -1,0 +1,755 @@
+/* ========================================
+   기본 설정
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Rajdhani', 'Noto Sans KR', sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    color: #ffffff;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ========================================
+   HUD 컨테이너
+   ======================================== */
+.hud-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ========================================
+   3D 텍스트 컨테이너
+   ======================================== */
+#text-3d-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.text-3d {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.75);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.3s ease-in-out;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-3d.item-pickup {
+    background: rgba(0, 217, 255, 0.2);
+    border: 1px solid rgba(0, 217, 255, 0.6);
+    color: #00d9ff;
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+}
+
+.text-3d.weapon-pickup {
+    background: rgba(255, 200, 0, 0.2);
+    border: 1px solid rgba(255, 200, 0, 0.6);
+    color: #ffc800;
+    box-shadow: 0 0 10px rgba(255, 200, 0, 0.3);
+}
+
+.text-3d.boss-marker {
+    background: rgba(255, 0, 0, 0.2);
+    border: 1px solid rgba(255, 0, 0, 0.6);
+    color: #ff0000;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    font-size: 16px;
+}
+
+.text-3d.finish-line {
+    background: rgba(0, 255, 0, 0.2);
+    border: 1px solid rgba(0, 255, 0, 0.6);
+    color: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    font-size: 18px;
+}
+
+/* ========================================
+   조준점
+   ======================================== */
+#crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    z-index: 50;
+}
+
+.crosshair-line {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+.crosshair-horizontal {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    transform: translateY(-50%);
+}
+
+.crosshair-vertical {
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    transform: translateX(-50%);
+}
+
+.crosshair-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+#crosshair.targeting .crosshair-line,
+#crosshair.targeting .crosshair-dot {
+    background: rgba(255, 0, 0, 0.9);
+}
+
+/* ========================================
+   차량 정보 (좌측 하단)
+   ======================================== */
+.vehicle-info {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    background: rgba(26, 26, 26, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 250px;
+    border: 2px solid rgba(0, 217, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: slideInLeft 0.5s ease-out;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.info-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #00d9ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.info-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.health-bar-container {
+    flex: 1;
+    margin-left: 15px;
+    position: relative;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.health-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff00, #7fff00);
+    transition: width 0.3s ease, background 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    width: 100%;
+}
+
+.health-bar.medium {
+    background: linear-gradient(90deg, #ffaa00, #ff7700);
+    box-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+}
+
+.health-bar.low {
+    background: linear-gradient(90deg, #ff0000, #cc0000);
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    animation: pulse 1s infinite;
+}
+
+.health-text {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* ========================================
+   아이템 슬롯 (범퍼카 - 하단 중앙)
+   ======================================== */
+.item-slots {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    animation: slideInBottom 0.5s ease-out;
+}
+
+.item-slot {
+    background: rgba(26, 26, 26, 0.8);
+    border: 2px solid rgba(0, 217, 255, 0.3);
+    border-radius: 8px;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.item-slot:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 217, 255, 0.6);
+    box-shadow: 0 6px 20px rgba(0, 217, 255, 0.3);
+}
+
+.slot-number {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 217, 255, 0.8);
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 217, 255, 0.4);
+}
+
+.slot-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.slot-empty {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+}
+
+.slot-item-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 5px;
+}
+
+.slot-item-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* ========================================
+   폭탄 타이머 (상단 중앙)
+   ======================================== */
+.bomb-timer {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 26, 26, 0.9);
+    padding: 20px 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 2px solid rgba(255, 0, 0, 0.6);
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+    animation: slideInTop 0.5s ease-out;
+}
+
+.bomb-icon {
+    font-size: 36px;
+    animation: pulse 1.5s infinite;
+}
+
+.timer-display {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ff0000;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    font-family: 'Rajdhani', monospace;
+}
+
+.bomb-timer.critical {
+    animation: pulse 0.5s infinite, slideInTop 0.5s ease-out;
+    border-color: rgba(255, 0, 0, 1);
+    box-shadow: 0 4px 30px rgba(255, 0, 0, 0.8);
+}
+
+/* ========================================
+   폭탄 소유자 정보 (우측 상단)
+   ======================================== */
+.bomb-holder-info {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    background: rgba(26, 26, 26, 0.8);
+    padding: 15px 25px;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: slideInRight 0.5s ease-out;
+}
+
+.holder-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.holder-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ff0000;
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+}
+
+/* ========================================
+   거리 정보 (아발란체 - 상단 중앙)
+   ======================================== */
+.distance-info {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 26, 26, 0.8);
+    padding: 15px 30px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 255, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    animation: slideInTop 0.5s ease-out;
+}
+
+.distance-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.distance-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #00ff00;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+}
+
+/* ========================================
+   경고 메시지 (아발란체 - 우측 상단)
+   ======================================== */
+.warning-message {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    background: rgba(255, 0, 0, 0.2);
+    padding: 15px 25px;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 0, 0, 0.6);
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideInRight 0.3s ease-out, pulse 1s infinite;
+}
+
+.warning-icon {
+    font-size: 24px;
+}
+
+.warning-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ff0000;
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+}
+
+/* ========================================
+   보스 정보 (상단 중앙)
+   ======================================== */
+.boss-info {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 26, 26, 0.9);
+    padding: 15px 30px;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 0, 0, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    animation: slideInTop 0.5s ease-out;
+}
+
+.boss-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.boss-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ff0000;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+
+/* ========================================
+   역할 표시 (보스 - 우측 상단)
+   ======================================== */
+.role-display {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    background: rgba(26, 26, 26, 0.8);
+    padding: 15px 25px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 255, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: slideInRight 0.5s ease-out;
+}
+
+.role-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00ff00;
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+}
+
+.role-display.boss-role {
+    border-color: rgba(255, 0, 0, 0.4);
+}
+
+.role-display.boss-role .role-text {
+    color: #ff0000;
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.6);
+}
+
+/* ========================================
+   무기 정보 (우측 하단)
+   ======================================== */
+.weapon-info {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    background: rgba(26, 26, 26, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 280px;
+    border: 2px solid rgba(255, 200, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: slideInRight 0.5s ease-out;
+}
+
+.weapon-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.weapon-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 200, 0, 0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 200, 0, 0.3);
+}
+
+.weapon-icon img {
+    max-width: 40px;
+    max-height: 40px;
+}
+
+.weapon-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffc800;
+    text-shadow: 0 0 8px rgba(255, 200, 0, 0.4);
+}
+
+.weapon-ammo {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.ammo-current {
+    color: #ffffff;
+}
+
+.ammo-separator {
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0 5px;
+}
+
+.ammo-max {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+}
+
+.weapon-ammo.low-ammo .ammo-current {
+    color: #ff7700;
+}
+
+.weapon-ammo.no-ammo .ammo-current {
+    color: #ff0000;
+    animation: pulse 1s infinite;
+}
+
+.reload-bar-container {
+    position: relative;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 200, 0, 0.3);
+}
+
+.reload-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ffc800, #ff7700);
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px rgba(255, 200, 0, 0.5);
+    width: 0%;
+}
+
+.reload-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* ========================================
+   알림
+   ======================================== */
+#notification-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+    pointer-events: none;
+}
+
+.notification {
+    background: rgba(26, 26, 26, 0.95);
+    padding: 20px 40px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 2px solid rgba(0, 217, 255, 0.4);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+    animation: fadeInScale 0.3s ease-out;
+    text-align: center;
+    min-width: 300px;
+}
+
+.notification.info {
+    border-color: rgba(0, 217, 255, 0.4);
+}
+
+.notification.success {
+    border-color: rgba(0, 255, 0, 0.4);
+}
+
+.notification.warning {
+    border-color: rgba(255, 200, 0, 0.4);
+}
+
+.notification.error {
+    border-color: rgba(255, 0, 0, 0.4);
+}
+
+.notification-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* ========================================
+   킬피드
+   ======================================== */
+#killfeed-container {
+    position: absolute;
+    top: 120px;
+    right: 40px;
+    z-index: 150;
+    pointer-events: none;
+}
+
+.killfeed-item {
+    background: rgba(26, 26, 26, 0.8);
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border-left: 3px solid rgba(255, 0, 0, 0.6);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    animation: slideInRight 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.killfeed-killer {
+    font-weight: 700;
+    color: #ff0000;
+}
+
+.killfeed-icon {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.killfeed-victim {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ========================================
+   애니메이션
+   ======================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInTop {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes slideInBottom {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 50px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}

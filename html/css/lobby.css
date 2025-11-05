@@ -1,0 +1,612 @@
+/* ========================================
+   전역 스타일
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', 'Rajdhani', sans-serif;
+    background: transparent;
+    color: #ffffff;
+    overflow: hidden;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ========================================
+   메인 컨테이너
+   ======================================== */
+#lobby-container {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 320px 1fr 520px;
+    gap: 20px;
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.95), rgba(20, 20, 20, 0.98));
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ========================================
+   좌측 섹션 (컨트롤 + 채팅)
+   ======================================== */
+.left-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 컨트롤 버튼 */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.control-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #2a2a2a, #242424);
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.control-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.control-btn:hover::before {
+    left: 100%;
+}
+
+.control-btn:hover {
+    background: linear-gradient(135deg, #3a3a3a, #2e2e2e);
+    border-color: #00d9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+}
+
+.control-btn:active {
+    transform: translateY(0);
+}
+
+.btn-icon {
+    font-size: 20px;
+    min-width: 24px;
+    text-align: center;
+}
+
+.ready-btn.active {
+    background: linear-gradient(135deg, #00aa00, #008800);
+    border-color: #00ff00;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+}
+
+.ready-btn.active .btn-text::after {
+    content: ' 됨';
+}
+
+.spectate-btn.active {
+    background: linear-gradient(135deg, #0088cc, #006699);
+    border-color: #00d9ff;
+}
+
+.spectate-btn.active .btn-text {
+    content: '관전 중';
+}
+
+.quit-btn:hover {
+    background: linear-gradient(135deg, #aa0000, #880000);
+    border-color: #ff0000;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+}
+
+/* 채팅 섹션 */
+.chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #2a2a2a, #242424);
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 400px;
+}
+
+.chat-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #1a1a1a, #151515);
+    border-bottom: 2px solid #00d9ff;
+}
+
+.chat-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00d9ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #00d9ff;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #00aacc;
+}
+
+.chat-message {
+    padding: 8px 12px;
+    background: rgba(26, 26, 26, 0.6);
+    border-radius: 6px;
+    border-left: 3px solid #00d9ff;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.chat-message .sender {
+    font-weight: 700;
+    color: #00d9ff;
+    margin-right: 8px;
+}
+
+.chat-message .text {
+    color: #e0e0e0;
+    word-wrap: break-word;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 8px;
+    padding: 16px;
+    background: #1a1a1a;
+    border-top: 2px solid #4a4a4a;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: #2a2a2a;
+    border: 2px solid #4a4a4a;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.chat-input:focus {
+    border-color: #00d9ff;
+    box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+}
+
+.chat-send-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #00d9ff, #00aacc);
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.chat-send-btn:hover {
+    background: linear-gradient(135deg, #00ffff, #00ccdd);
+    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.chat-send-btn:active {
+    transform: translateY(0);
+}
+
+/* ========================================
+   중앙 섹션 (플레이어 리스트)
+   ======================================== */
+.center-section {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #2a2a2a, #242424);
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.player-list-header {
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #1a1a1a, #151515);
+    border-bottom: 2px solid #00d9ff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #00d9ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.header-count {
+    font-size: 20px;
+    font-weight: 600;
+    color: #e0e0e0;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.player-list {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-content: start;
+}
+
+.player-list::-webkit-scrollbar {
+    width: 10px;
+}
+
+.player-list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.player-list::-webkit-scrollbar-thumb {
+    background: #00d9ff;
+    border-radius: 5px;
+}
+
+.player-card {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #1a1a1a, #151515);
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: all 0.3s ease;
+    animation: playerCardIn 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes playerCardIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.player-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #4a4a4a;
+    transition: background 0.3s ease;
+}
+
+.player-card.ready::before {
+    background: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.player-card:hover {
+    border-color: #00d9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.2);
+}
+
+.player-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.player-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.player-rank-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(0, 217, 255, 0.3));
+}
+
+.player-level {
+    font-size: 14px;
+    font-weight: 600;
+    color: #00d9ff;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.player-status {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 14px;
+    background: rgba(26, 26, 26, 0.8);
+    border: 2px solid #4a4a4a;
+    transition: all 0.3s ease;
+}
+
+.player-card.ready .player-status {
+    background: #00ff00;
+    border-color: #00ff00;
+    color: #1a1a1a;
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.6);
+}
+
+/* ========================================
+   우측 섹션
+   ======================================== */
+.right-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 타이머 섹션 */
+.timer-section {
+    padding: 24px;
+    background: linear-gradient(135deg, #2a2a2a, #242424);
+    border: 2px solid #00d9ff;
+    border-radius: 8px;
+    text-align: center;
+    animation: timerPulse 2s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 24px rgba(0, 217, 255, 0.6);
+    }
+}
+
+.timer-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.timer-value {
+    font-size: 48px;
+    font-weight: 700;
+    color: #00d9ff;
+    font-family: 'Rajdhani', sans-serif;
+    text-shadow: 0 0 20px rgba(0, 217, 255, 0.6);
+}
+
+/* 관전자 섹션 */
+.spectator-section {
+    background: linear-gradient(135deg, #2a2a2a, #242424);
+    border: 2px solid #4a4a4a;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.spectator-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #1a1a1a, #151515);
+    border-bottom: 2px solid #00d9ff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.spectator-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00d9ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.spectator-count {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e0e0e0;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.spectator-list {
+    padding: 16px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.spectator-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.spectator-list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.spectator-list::-webkit-scrollbar-thumb {
+    background: #00d9ff;
+    border-radius: 3px;
+}
+
+.spectator-item {
+    padding: 12px;
+    background: linear-gradient(135deg, #1a1a1a, #151515);
+    border: 2px solid #4a4a4a;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    animation: slideIn 0.3s ease;
+}
+
+.spectator-item:hover {
+    border-color: #00d9ff;
+    transform: translateX(4px);
+}
+
+.spectator-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spectator-rank-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.spectator-level {
+    font-size: 13px;
+    font-weight: 600;
+    color: #00d9ff;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+/* ========================================
+   반응형 디자인
+   ======================================== */
+@media screen and (max-width: 1600px) {
+    #lobby-container {
+        grid-template-columns: 280px 1fr 480px;
+        gap: 16px;
+        padding: 30px;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    #lobby-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .left-section,
+    .right-section {
+        flex-direction: row;
+        gap: 16px;
+    }
+
+    .left-section > *,
+    .right-section > * {
+        flex: 1;
+    }
+
+    .chat-section {
+        min-height: 300px;
+    }
+}
+
+/* ========================================
+   유틸리티
+   ======================================== */
+.no-data {
+    padding: 40px;
+    text-align: center;
+    color: #8a8a8a;
+    font-size: 14px;
+}
